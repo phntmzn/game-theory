@@ -7,7 +7,7 @@ Uses:
 
 Python 3.x
 
-30 players
+30 explicitly defined players
 50 rounds
 Multiple strategies
 Repeated interactions
@@ -24,6 +24,87 @@ import random
 
 NUM_PLAYERS = 30
 ROUNDS = 50
+
+
+# ============================================================
+# 30 PLAYER NAMES
+# ============================================================
+
+PLAYER_NAMES = [
+    "Alice",
+    "Bob",
+    "Charlie",
+    "Diana",
+    "Eve",
+    "Frank",
+    "Grace",
+    "Henry",
+    "Iris",
+    "Jack",
+    "Karen",
+    "Leo",
+    "Mia",
+    "Nathan",
+    "Olivia",
+    "Paul",
+    "Quinn",
+    "Rachel",
+    "Sam",
+    "Tara",
+    "Uma",
+    "Victor",
+    "Wendy",
+    "Xavier",
+    "Yara",
+    "Zach",
+    "Aaron",
+    "Bella",
+    "Caleb",
+    "Daisy",
+]
+
+
+# ============================================================
+# STRATEGY ASSIGNMENTS
+# ============================================================
+
+PLAYER_STRATEGIES = [
+    "always_cooperate",
+    "always_defect",
+    "tit_for_tat",
+    "grim_trigger",
+    "random",
+
+    "always_cooperate",
+    "always_defect",
+    "tit_for_tat",
+    "grim_trigger",
+    "random",
+
+    "always_cooperate",
+    "always_defect",
+    "tit_for_tat",
+    "grim_trigger",
+    "random",
+
+    "always_cooperate",
+    "always_defect",
+    "tit_for_tat",
+    "grim_trigger",
+    "random",
+
+    "always_cooperate",
+    "always_defect",
+    "tit_for_tat",
+    "grim_trigger",
+    "random",
+
+    "always_cooperate",
+    "always_defect",
+    "tit_for_tat",
+    "grim_trigger",
+    "random",
+]
 
 
 # ============================================================
@@ -113,27 +194,33 @@ strategies = {
 
 class Player:
 
-    def __init__(self, player_id):
+    def __init__(
+        self,
+        player_id,
+        name,
+        strategy_name,
+    ):
 
         self.id = player_id
 
-        self.strategy_name = random.choice(
-            list(strategies)
-        )
+        self.name = name
+
+        self.strategy_name = strategy_name
 
         self.strategy = strategies[
-            self.strategy_name
+            strategy_name
         ]
 
         self.score = 0
 
         self.cooperations = 0
+
         self.defections = 0
+
+        self.games = 0
 
         # History against each opponent.
         self.history = {}
-
-        self.games = 0
 
     def choose_action(self, opponent):
 
@@ -143,6 +230,38 @@ class Player:
         )
 
         return self.strategy(history)
+
+
+# ============================================================
+# CREATE 30 PLAYERS FROM LISTS
+# ============================================================
+
+players = [
+    Player(
+        player_id=i + 1,
+        name=PLAYER_NAMES[i],
+        strategy_name=PLAYER_STRATEGIES[i],
+    )
+    for i in range(NUM_PLAYERS)
+]
+
+
+# ============================================================
+# DISPLAY PLAYERS
+# ============================================================
+
+print()
+print("=" * 75)
+print("30 PLAYERS")
+print("=" * 75)
+
+for player in players:
+
+    print(
+        f"P{player.id:02d} | "
+        f"{player.name:10} | "
+        f"{player.strategy_name}"
+    )
 
 
 # ============================================================
@@ -159,22 +278,16 @@ def payoff(my_action, opponent_action):
         expression,
         {
             "__builtins__": {},
+
             "REWARD": REWARD,
+
             "TEMPTATION": TEMPTATION,
+
             "PUNISHMENT": PUNISHMENT,
+
             "SUCKER": SUCKER,
         },
     )
-
-
-# ============================================================
-# CREATE 30 PLAYERS
-# ============================================================
-
-players = [
-    Player(i + 1)
-    for i in range(NUM_PLAYERS)
-]
 
 
 # ============================================================
@@ -188,15 +301,15 @@ for round_number in range(1, ROUNDS + 1):
     print(f"ROUND {round_number}")
     print("=" * 75)
 
-    # Randomly shuffle the population.
     shuffled = players.copy()
 
     random.shuffle(shuffled)
 
-    # 30 players -> 15 simultaneous matches.
+    # 30 players -> 15 matches.
     for i in range(0, NUM_PLAYERS, 2):
 
         player_a = shuffled[i]
+
         player_b = shuffled[i + 1]
 
         # ----------------------------------------------------
@@ -226,9 +339,11 @@ for round_number in range(1, ROUNDS + 1):
         )
 
         player_a.score += payoff_a
+
         player_b.score += payoff_b
 
         player_a.games += 1
+
         player_b.games += 1
 
         # ----------------------------------------------------
@@ -264,11 +379,11 @@ for round_number in range(1, ROUNDS + 1):
         # ----------------------------------------------------
 
         print(
-            f"P{player_a.id:02d} "
+            f"{player_a.name:10} "
             f"({player_a.strategy_name:16}) "
             f"{action_a} "
             f"vs "
-            f"P{player_b.id:02d} "
+            f"{player_b.name:10} "
             f"({player_b.strategy_name:16}) "
             f"{action_b} "
             f"| payoff="
@@ -309,7 +424,7 @@ for position, player in enumerate(
 
     print(
         f"{position:02d}. "
-        f"P{player.id:02d} | "
+        f"{player.name:10} | "
         f"score={player.score:5d} | "
         f"strategy={player.strategy_name:16} | "
         f"C={player.cooperations:3d} | "
@@ -339,7 +454,10 @@ for strategy_name in strategies:
         continue
 
     average_score = (
-        sum(player.score for player in members)
+        sum(
+            player.score
+            for player in members
+        )
         / len(members)
     )
 
